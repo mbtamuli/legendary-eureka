@@ -1,0 +1,11 @@
+groups:
+  - name: default
+    rules:
+      - alert: MockCounter
+        expr: mock_metrics_simple_counter > 50
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Counter Up"
+          description: "Counter is greater than 50 for 1m."

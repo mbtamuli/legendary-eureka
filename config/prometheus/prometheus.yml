@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: "citadel"
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - "alert.rules"
+  # - "second.rules"
+
+# alert
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets:
+            - "alertmanager:9093"
+
+scrape_configs:
+  - job_name: "app1"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["app-healthy:8080"]
+
+  - job_name: "app2"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["app-unhealthy:8080"]

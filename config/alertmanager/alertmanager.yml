@@ -1,0 +1,12 @@
+global:
+  slack_api_url: "https://hooks.slack.com/services/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"
+
+route:
+  receiver: "slack-notifications"
+  group_by: [alertname, datacenter, app]
+
+receivers:
+  - name: "slack-notifications"
+    slack_configs:
+      - channel: "#test"
+        text: "{{ .GroupLabels.app }} {{ .GroupLabels.alertname }}"

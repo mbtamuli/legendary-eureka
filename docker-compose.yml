@@ -1,0 +1,41 @@
+version: "3.7"
+
+volumes:
+  prometheus_data: {}
+  alertmanager_data: {}
+
+services:
+  app-healthy:
+    build: ./app
+    ports:
+      - 8080:8080
+
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.15.1
+    volumes:
+      - ./config/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - 9090:9090
+    restart: always
+
+  # grafana:
+  #   image: grafana/grafana:5.1.0
+  #   ports:
+  #     - 3000:3000
+  #   user: "104"
+
+  alertmanager:
+    image: quay.io/prometheus/alertmanager:v0.20.0
+    ports:
+      - 9094:9094
+    volumes:
+      - ./config/alertmanager/:/etc/alertmanager/
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
