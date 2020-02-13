@@ -18,7 +18,43 @@ export PROXY_IP=$(minikube service demo-kong-proxy --url | head -1); echo $PROXY
 ```
 
 ### Ingress Routing
+We'll create a demo Service and a corresponding Ingress.
 
+```
+kubectl apply -f https://bit.ly/echo-service
+
+echo "
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demo
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /foo
+        backend:
+          serviceName: echo
+          servicePort: 80
+" | kubectl apply -f -
+
+curl -i $PROXY_IP/foo
+```
+
+Now we'll configure Kong to only respond to GET requests and not strip the path defined in the Ingress
+
+```
+echo "apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: sample-customization
+route:
+  methods:
+  - GET
+  strip_path: false" | kubectl apply -f -
+  
+kubectl patch ingress demo -p '{"metadata":{"annotations":{"configuration.konghq.com":"sample-customization"}}}'
+```
 
 ### Load Balancing
 ### Proxy Behaviour
